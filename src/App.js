@@ -1,25 +1,54 @@
-import logo from './logo.svg';
-import './App.css';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+import BlogLayout from "./pages/BlogLayout";
+import DeferredBlogPostsPage, {
+  loader as deferredBlogPostsLoader,
+} from "./pages/DeferredBlogPosts";
+import ErrorPage from "./pages/Error";
+import NewPostPage, { action as newPostAction } from "./pages/NewPost";
+import { action as newsletterAction } from "./pages/Newsletter";
+import PostDetailPage, { loader as blogPostLoader } from "./pages/PostDetail";
+import RootLayout from "./pages/RootLayout";
+import WelcomePage from "./pages/Welcome";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      { index: true, element: <WelcomePage /> },
+      {
+        path: "/blog",
+        element: <BlogLayout />,
+        children: [
+          {
+            index: true,
+            element: <DeferredBlogPostsPage />,
+            loader: deferredBlogPostsLoader,
+          },
+          {
+            path: ":id",
+            element: <PostDetailPage />,
+            loader: blogPostLoader,
+          },
+        ],
+      },
+      {
+        path: "/blog/new",
+        element: <NewPostPage />,
+        action: newPostAction,
+      },
+    ],
+  },
+  {
+    path: "/newsletter",
+    action: newsletterAction,
+  },
+]);
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
